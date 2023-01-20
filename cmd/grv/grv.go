@@ -655,16 +655,27 @@ func (grv *GRV) runFileSystemMonitorLoop(waitGroup *sync.WaitGroup, exitCh <-cha
 	eventCh := make(chan fs.EventInfo, 1)
 	repoGitDir := grv.repoData.Path()
 	repoFilePath := grv.repoData.RepositoryRootPath()
-	watchDir := repoFilePath + "..."
 
-	if err := fs.Watch(watchDir, eventCh, fs.All); err != nil {
-		log.Errorf("Unable to watch path for filesystem events %v: %v", watchDir, err)
-		return
+	addWatch := func(dir string) error {
+		watchDir := dir + "..."
+		if err := fs.Watch(watchDir, eventCh, fs.All); err != nil {
+			log.Errorf("Unable to watch path for filesystem events %v: %v", watchDir, err)
+			return err
+		}
+
+		log.Infof("Watching filesystem events for path: %v", watchDir)
+		return nil
 	}
 
 	defer fs.Stop(eventCh)
 
-	log.Infof("Watching filesystem events for path: %v", watchDir)
+	if addWatch(repoFilePath) != nil {
+		return
+	}
+
+	if addWatch(repoGitDir) != nil {
+		return
+	}
 
 	timer := time.NewTimer(time.Hour)
 	timer.Stop()
