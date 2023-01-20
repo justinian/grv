@@ -8,41 +8,21 @@ BINARY?=grv
 GRV_SOURCE_DIR=./cmd/grv
 GRV_LDFLAGS=-X 'main.version=$(GRV_VERSION)' -X 'main.buildDateTime=$(GRV_BUILD_DATETIME)'
 GRV_STATIC_LDFLAGS=-extldflags '-lncurses -ltinfo -lgpm -static'
-GRV_BUILD_FLAGS=--tags static -ldflags "$(GRV_LDFLAGS)"
-GRV_STATIC_BUILD_FLAGS=--tags static -ldflags "$(GRV_LDFLAGS) $(GRV_STATIC_LDFLAGS)"
+GRV_BUILD_FLAGS=-ldflags "$(GRV_LDFLAGS)"
+GRV_STATIC_BUILD_FLAGS=-ldflags "$(GRV_LDFLAGS) $(GRV_STATIC_LDFLAGS)"
 
-GRV_DIR:=$(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 GOPATH_DIR:=$(shell go env GOPATH)
 GOBIN_DIR:=$(GOPATH_DIR)/bin
 
-GIT2GO_VERSION=27
-GIT2GO_DIR:=$(GRV_SOURCE_DIR)/vendor/gopkg.in/libgit2/git2go.v$(GIT2GO_VERSION)
-LIBGIT2_DIR=$(GIT2GO_DIR)/vendor/libgit2
-GIT2GO_PATCH=git2go.v$(GIT2GO_VERSION).patch
-
 all: $(BINARY)
 
-$(BINARY): build-libgit2
+$(BINARY):
 	$(GOCMD) build $(GRV_BUILD_FLAGS) -o $(BINARY) $(GRV_SOURCE_DIR)
-
-.PHONY: build-only
-build-only:
-	make -C $(GIT2GO_DIR) install-static
-	$(GOCMD) build $(GRV_BUILD_FLAGS) -o $(BINARY) $(GRV_SOURCE_DIR)
-
-.PHONY: build-libgit2
-build-libgit2: apply-patches
-	make -C $(GIT2GO_DIR) install-static
 
 .PHONY: install
 install: $(BINARY)
 	install -m755 -d $(GOBIN_DIR)
 	install -m755 $(BINARY) $(GOBIN_DIR)
-
-.PHONY: update
-update:
-	git submodule -q foreach --recursive git reset -q --hard
-	git submodule update --init --recursive
 
 .PHONY: update-test
 update-test:
@@ -50,17 +30,10 @@ update-test:
 	$(GOCMD) get github.com/stretchr/testify/mock
 	$(GOCMD) get github.com/stretchr/testify/assert
 
-.PHONY: apply-patches
-apply-patches: update
-	if patch --dry-run -N -d $(GIT2GO_DIR) -p1 < $(GIT2GO_PATCH) >/dev/null; then \
-		patch -d $(GIT2GO_DIR) -p1 < $(GIT2GO_PATCH); \
-	fi
-
 # Only tested on Ubuntu.
 # Requires dependencies static library versions to be present alongside dynamic ones
-.PHONY: static
-static: build-libgit2
-	$(GOCMD) build $(GRV_STATIC_BUILD_FLAGS) -o $(BINARY) $(GRV_SOURCE_DIR)
+$(BINARY)-static:
+	$(GOCMD) build $(GRV_STATIC_BUILD_FLAGS) -o $(BINARY)-static $(GRV_SOURCE_DIR)
 
 .PHONY: test
 test: $(BINARY) doc update-test

@@ -12,8 +12,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	log "github.com/Sirupsen/logrus"
 	slice "github.com/bradfitz/slice"
+	log "github.com/sirupsen/logrus"
 )
 
 const (

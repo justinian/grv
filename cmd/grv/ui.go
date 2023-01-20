@@ -41,8 +41,8 @@ import (
 	"time"
 	"unsafe"
 
-	log "github.com/Sirupsen/logrus"
 	gc "github.com/rgburke/goncurses"
+	log "github.com/sirupsen/logrus"
 )
 
 const (

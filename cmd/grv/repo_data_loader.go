@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	slice "github.com/bradfitz/slice"
-	git "gopkg.in/libgit2/git2go.v27"
+	git "github.com/libgit2/git2go/v31"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
