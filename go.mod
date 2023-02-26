@@ -6,7 +6,7 @@ require (
 	github.com/bradfitz/slice v0.0.0-20180809154707-2b758aa73013
 	github.com/gobwas/glob v0.2.3
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/libgit2/git2go/v31 v31.7.9
+	github.com/libgit2/git2go/v34 v34.0.0
 	github.com/mattn/go-runewidth v0.0.14
 	github.com/rgburke/goncurses v0.0.0-20180201210814-74f667ab258b
 	github.com/rjeczalik/notify v0.9.3
